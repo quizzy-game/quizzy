@@ -128,11 +128,11 @@ body{font-size:18px;line-height:1.65}
 .dchain .pg{width:32px;height:32px}
 .dchain .pg b{width:7px;height:7px}
 #dchain.dchain{display:block!important;position:relative;overflow:hidden!important;max-height:none!important;padding:0!important;margin:10px -4px 14px!important;border-radius:22px!important;border:3px solid #0d4a14;background:radial-gradient(ellipse at 50% 40%,#3fae2a 0%,#2c8a1f 55%,#1d6a17 100%)!important;box-shadow:inset 0 0 40px rgba(0,0,0,.35);min-height:220px}
-#dchain .dt{position:absolute!important;margin:0!important;display:flex!important;flex-direction:row;align-items:center;justify-content:space-between;width:60px!important;height:30px!important;padding:2px 3px!important;background:#fbfaf2!important;border:1px solid #9a9a8c!important;border-radius:5px!important;box-shadow:0 2px 3px rgba(0,0,0,.45)!important;transition:left .25s,top .25s}
+#dchain .dt{position:absolute!important;margin:0!important;display:flex!important;flex-direction:row;align-items:center;justify-content:space-between;width:72px!important;height:36px!important;padding:2px 4px!important;background:#fbfaf2!important;border:1px solid #9a9a8c!important;border-radius:5px!important;box-shadow:0 2px 3px rgba(0,0,0,.45)!important;transition:left .25s,top .25s}
 #dchain .dt.rv{flex-direction:row-reverse}
 #dchain .dl{width:1.5px!important;height:70%!important;background:#8a8a7c!important}
-#dchain .pg{width:25px!important;height:25px!important}
-#dchain .pg b{width:5px!important;height:5px!important;background:#111!important}
+#dchain .pg{width:30px!important;height:30px!important}
+#dchain .pg b{width:6px!important;height:6px!important;background:#111!important}
 .dhand{background:linear-gradient(#1d6a17,#14500f)!important;border-radius:18px;padding:18px 10px!important;border:3px solid #0d4a14}
 .dhand .dt{background:#fbfaf2!important;border:1px solid #9a9a8c!important;border-radius:8px!important;box-shadow:0 3px 4px rgba(0,0,0,.5)!important}
 .dhand .dt.ok{border-color:#ffd23f!important;box-shadow:0 0 0 3px #ffd23f,0 4px 6px rgba(0,0,0,.5)!important}
@@ -418,7 +418,7 @@ if(ios)setTimeout(function(){show("دوس على زر المشاركة ⬆️ ث
 else setTimeout(function(){if(!dp&&!bar)show("من قائمة المتصفح ⋮ اختار «تثبيت التطبيق»",false)},3500)})();
 
 </script><script>function dSnake(c){if(!c)return;var ts=[].slice.call(c.querySelectorAll('.dt'));if(!ts.length)return;
-var W=c.clientWidth||340,L=60,w=30,g=4,pad=12,rowG=16,n=Math.max(2,Math.floor((W-2*pad+g)/(L+g))),sx=(W-(n*L+(n-1)*g))/2;
+var W=c.clientWidth||340,L=72,w=36,g=8,pad=14,rowG=20,n=Math.max(2,Math.floor((W-2*pad+g)/(L+g))),sx=(W-(n*L+(n-1)*g))/2;
 ts.forEach(function(t,i){var r=Math.floor(i/n),k=i%n,rev=r%2===1,col=rev?n-1-k:k;
 t.className='dt h'+(rev?' rv':'');t.style.left=(sx+col*(L+g))+'px';t.style.top=(pad+r*(w+rowG))+'px'});
 var rows=Math.ceil(ts.length/n);c.style.height=Math.max(220,pad*2+rows*(w+rowG)-rowG)+'px'}
