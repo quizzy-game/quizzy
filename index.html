@@ -73,6 +73,7 @@ button{font:inherit;cursor:pointer}
 .mh{display:flex;align-items:center;gap:8px;font-size:13px}.mh small{color:#6b5d5d}.rep{margin-inline-start:auto;border:0;background:transparent;color:#a33;font-size:12px}
 .mb{margin-top:2px;word-break:break-word;white-space:pre-wrap}
 #app{padding-top:62px!important}
+.srow select{font:inherit;max-width:120px}
 #snd{position:fixed;top:10px;left:10px;z-index:50;width:44px;height:44px;border-radius:50%;border:0;background:#1e6fff;color:#fff;font-size:20px;box-shadow:0 3px 8px rgba(0,0,0,.25)}
 #sndp{position:fixed;top:60px;left:10px;z-index:50;width:230px;padding:12px;border-radius:16px;background:#fff;box-shadow:0 6px 20px rgba(0,0,0,.3);direction:rtl}
 .srow{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:8px 0;font-size:16px}.srow input[type=range]{flex:1;max-width:120px}.srow input[type=checkbox]{width:22px;height:22px}
@@ -211,16 +212,19 @@ pingStats();
 function okBank(b){if(!Array.isArray(b)||b.length<3000)return false;for(var i=0;i<b.length;i++){var r=b[i];if(!Array.isArray(r)||r.length!==6||typeof r[3]!=='string'||!Array.isArray(r[4])||r[4].length!==4||!(r[5]>=0&&r[5]<4))return false}return true}
 function applyBank(b){BANK=b;Q=BANK.map(function(r){return{id:r[0],topic:r[1],level:r[2],text:r[3],choices:r[4],answer:r[5]}});counts={};Q.forEach(function(q){counts[q.topic]=(counts[q.topic]||0)+1});TOPICS=['الكل'].concat(Object.keys(counts).filter(function(t){return counts[t]>=30}));POOL=Q.filter(function(q){return q.topic!=='رياضيات'&&q.level<2}).sort(function(a,b){return a.id-b.id});if(view==='home')render()}
 try{fetch('bank.json',{cache:'no-cache'}).then(function(r){return r.ok?r.json():null}).then(function(b){if(okBank(b)&&b.length!==BANK.length)applyBank(b)}).catch(function(){})}catch(e){}
-var SND={vol:.6,music:true,vib:true};try{var _s=JSON.parse(localStorage.getItem('quizzy.snd')||'null');if(_s)SND=Object.assign(SND,_s)}catch(e){}
+var SND={vol:.6,music:true,vib:true,track:0};try{var _s=JSON.parse(localStorage.getItem('quizzy.snd')||'null');if(_s)SND=Object.assign(SND,_s)}catch(e){}
 function sndSave(){try{localStorage.setItem('quizzy.snd',JSON.stringify(SND))}catch(e){}}
 var AC=null,MG=null,SG=null,MST=null,nextT=0,mstep=0,mtm=null;
 function ensureAC(){if(AC)return true;var C=window.AudioContext||window.webkitAudioContext;if(!C)return false;try{AC=new C();MST=AC.createGain();MST.gain.value=SND.vol;MG=AC.createGain();MG.gain.value=.2;SG=AC.createGain();SG.gain.value=.9;MG.connect(MST);SG.connect(MST);MST.connect(AC.destination)}catch(e){AC=null;return false}return true}
 function tone(f,t,d,type,g,dest){var o=AC.createOscillator(),v=AC.createGain();o.type=type||'sine';o.frequency.value=f;v.gain.setValueAtTime(0.0001,t);v.gain.exponentialRampToValueAtTime(g||.3,t+.012);v.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(v);v.connect(dest||SG);o.start(t);o.stop(t+d+.05)}
 function hz(m){return 440*Math.pow(2,(m-69)/12)}
-var MEL=[72,-1,76,79,-1,76,74,-1, 69,-1,72,76,-1,72,71,-1, 65,-1,69,72,-1,69,67,-1, 67,-1,71,74,-1,79,76,-1];
-var BASS=[48,45,41,43];
-function musicTick(){if(!AC||!SND.music||SND.vol<=0||document.hidden)return;var now=AC.currentTime;if(nextT<now)nextT=now+.05;
- while(nextT<now+.5){var s=mstep%32,m=MEL[s];if(m>0)tone(hz(m),nextT,.28,'triangle',.5,MG);if(s%8===0)tone(hz(BASS[s/8]),nextT,1.2,'sine',.7,MG);if(s%4===2)tone(hz(BASS[Math.floor(s/8)]+12),nextT,.18,'sine',.25,MG);nextT+=.3125;mstep++}}
+var TR=[
+{n:'هادي',st:.3125,w:'triangle',mg:.5,nd:.28,blip:1,mel:[72,-1,76,79,-1,76,74,-1,69,-1,72,76,-1,72,71,-1,65,-1,69,72,-1,69,67,-1,67,-1,71,74,-1,79,76,-1],bass:[48,45,41,43]},
+{n:'مرح',st:.19,w:'square',mg:.16,nd:.14,blip:0,mel:[72,76,79,76,72,76,79,84,74,77,81,77,74,77,81,86,71,74,79,74,71,74,79,83,72,76,79,84,79,76,72,-1],bass:[48,50,43,48]},
+{n:'هادئ',st:.55,w:'sine',mg:.6,nd:.9,blip:0,mel:[76,-1,-1,72,-1,-1,79,-1,77,-1,-1,74,-1,-1,72,-1,74,-1,-1,71,-1,-1,76,-1,72,-1,-1,67,-1,-1,-1,-1],bass:[48,53,43,48]},
+{n:'حماس',st:.15,w:'sawtooth',mg:.13,nd:.12,blip:1,mel:[69,-1,72,-1,76,-1,72,-1,69,-1,72,-1,77,-1,76,-1,67,-1,71,-1,74,-1,71,-1,64,-1,68,71,76,-1,75,-1],bass:[45,41,43,40]}];
+function musicTick(){if(!AC||!SND.music||SND.vol<=0||document.hidden)return;var now=AC.currentTime,T=TR[SND.track]||TR[0];if(nextT<now)nextT=now+.05;
+ while(nextT<now+.5){var s=mstep%32,m=T.mel[s];if(m>0)tone(hz(m),nextT,T.nd,T.w,T.mg,MG);if(s%8===0)tone(hz(T.bass[s/8]),nextT,T.st*4,'sine',.7,MG);if(T.blip&&s%4===2)tone(hz(T.bass[Math.floor(s/8)]+12),nextT,.15,'sine',.25,MG);nextT+=T.st;mstep++}}
 function musicStart(){if(!ensureAC())return;if(AC.state==='suspended')AC.resume();if(!mtm)mtm=setInterval(musicTick,120)}
 function sfx(k){if(!AC||SND.vol<=0)return;if(AC.state==='suspended')AC.resume();var t=AC.currentTime+.01;
  if(k==='right'){tone(hz(72),t,.18,'triangle',.5);tone(hz(79),t+.12,.18,'triangle',.5);tone(hz(84),t+.24,.35,'triangle',.5)}
@@ -239,9 +243,10 @@ document.addEventListener('click',function(e){var b=e.target.closest&&e.target.c
 document.addEventListener('visibilitychange',function(){if(!AC)return;if(document.hidden)AC.suspend();else if(SND.music&&SND.vol>0)AC.resume()});
 var sb=document.createElement('button');sb.id='snd';sb.type='button';sb.setAttribute('aria-label','الصوت');
 var sp=document.createElement('div');sp.id='sndp';sp.style.display='none';
-sp.innerHTML='<div class="srow"><span>🔊 الصوت</span><input type="range" id="svol" min="0" max="100" step="5"></div><label class="srow"><span>🎵 الموسيقى</span><input type="checkbox" id="smus"></label><label class="srow"><span>📳 الاهتزاز</span><input type="checkbox" id="svib"></label>';
+sp.innerHTML='<div class="srow"><span>🔊 الصوت</span><input type="range" id="svol" min="0" max="100" step="5"></div><label class="srow"><span>🎵 الموسيقى</span><input type="checkbox" id="smus"></label><div class="srow"><span>🎼 اللحن</span><select id="strk"></select></div><label class="srow"><span>📳 الاهتزاز</span><input type="checkbox" id="svib"></label>';
 document.body.appendChild(sb);document.body.appendChild(sp);
 function sndUi(){sb.textContent=SND.vol<=0?'🔇':'🔊';document.getElementById('svol').value=Math.round(SND.vol*100);document.getElementById('smus').checked=SND.music;document.getElementById('svib').checked=SND.vib}
+var _sel=document.getElementById('strk');_sel.innerHTML=TR.map(function(t,i){return '<option value="'+i+'">'+(i+1)+'. '+t.n+'</option>'}).join('');_sel.value=SND.track;_sel.addEventListener('change',function(e){SND.track=+e.target.value;sndSave();mstep=0;nextT=0;if(SND.music){SND.vol>0&&musicStart()}});
 sndUi();
 sb.addEventListener('click',function(){sp.style.display=sp.style.display==='none'?'block':'none'});
 document.getElementById('svol').addEventListener('input',function(e){SND.vol=e.target.value/100;sndSave();ensureAC();if(MST)MST.gain.value=SND.vol;if(SND.vol>0&&SND.music)musicStart();sndUi();});
