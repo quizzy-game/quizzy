@@ -89,7 +89,7 @@ function pickRound(topic){
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
 function n(x){return Number(x).toLocaleString('ar-EG')}
 var app=document.getElementById('app'),view='home',topic='الكل',R=null,D=null;
-var LIMIT=30,TM=null,END=0;
+var LIMIT=45,TM=null,END=0;
 function timerHtml(pk){return pk>=0?'':'<div class="timer" id="timer"><div class="tb"><i id="tfill"></i></div><span class="tn" id="tnum">'+LIMIT+'</span></div>'}
 function stopTimer(){if(TM){clearInterval(TM);TM=null}}
 function startTimer(){stopTimer();END=Date.now()+LIMIT*1000;TM=setInterval(tick,200);tick()}
