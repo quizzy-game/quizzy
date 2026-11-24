@@ -134,7 +134,7 @@ function home(){
  '<button type="button" class="daily '+(done?'done':'')+'" data-act="daily"><span class="ico">'+(done?(st.dailyRight?'✅':'❌'):'🌟')+'</span><span class="main"><strong>سؤال اليوم</strong><small>'+(done?(st.dailyRight?'جاوبته صح! تعالى بكرة لسؤال جديد':'شوف الإجابة، وتعالى بكرة لسؤال جديد'):'سؤال واحد كل يوم. جاوب قبل ما اليوم يخلص')+'</small></span><span class="go">'+(done?'عرض':'يلا')+'</span></button>'+
 
  '<button type="button" class="wheelbtn" data-act="wheel"><span class="ico">🎡</span><span class="main"><strong>عجلة الحظ</strong><small>'+(st.spins>0?'معاك '+st.spins+' لفة، لف واجاوب سؤال بنقاط مضاعفة':'خلصت اللفات. كل جولة وكل يوم بيدوك لفة')+'</small></span><span class="go">'+st.spins+' 🎟</span></button>'+
- '<button type="button" class="dombtn" data-act="dom"><span class="ico">🁣</span><span class="main"><strong>دومينو</strong><small>العب دومنة ضد الكمبيوتر</small></span><span class="go">يلا</span></button>'+onlHtml()+'<div class="section">اختار القسم</div><div class="chips">'+TOPICS.map(function(t){return '<button type="button" class="chip '+(t===topic?'on':'')+'" data-topic="'+esc(t)+'">'+esc(t)+'</button>'}).join('')+'</div>'+
+ '<button type="button" class="dombtn" data-act="dom"><span class="ico">🎲</span><span class="main"><strong>دومينو</strong><small>العب دومنة ضد الكمبيوتر</small></span><span class="go">يلا</span></button>'+onlHtml()+'<div class="section">اختار القسم</div><div class="chips">'+TOPICS.map(function(t){return '<button type="button" class="chip '+(t===topic?'on':'')+'" data-topic="'+esc(t)+'">'+esc(t)+'</button>'}).join('')+'</div>'+
  '<button type="button" class="primary" data-act="round">ابدأ جولة ('+ROUND+' أسئلة)</button>'+
  '<div class="stats"><div><b>'+st.best+'</b><span>أعلى نتيجة</span></div><div><b>'+st.rounds+'</b><span>جولات</span></div><div><b>'+acc+'%</b><span>إجابات صح</span></div><div><b>'+st.dailyStreak+'</b><span>أيام متتالية 🔥</span></div></div>'+
  (canSave?'':'<p class="note">التقدم مش بيتحفظ بعد قفل الصفحة في المتصفح ده.</p>')}
@@ -286,7 +286,7 @@ function dCpu(){var pick=-1,k=-1;DM.cpu.forEach(function(t,i){if(dFits(t)&&t[0]+
  if(pick<0){DM.pass++;DM.msg='الكمبيوتر معاه مفيش وعدّى';DM.turn='me'}else{var t=DM.cpu.splice(pick,1)[0],s=dSides(t);dPlace(t,s[Math.floor(Math.random()*s.length)]);DM.pass=0;DM.msg='الكمبيوتر لعب';DM.turn='me'}
  dCheck();if(!DM.over&&!dCanMe()&&!DM.bone.length){DM.msg+=' · معاك مفيش وهتعدّي';}}
 function dCanMe(){return DM.me.some(dFits)}
-function domView(){return '<div class="bar"><button type="button" class="back" data-act="home">← رجوع</button><span class="score">🁣</span></div><h2 class="title">دومينو</h2><p class="sub">أنت ضد الكمبيوتر. خلّص حجارك الأول 🎯</p><div id="dm"></div>'}
+function domView(){return '<div class="bar"><button type="button" class="back" data-act="home">← رجوع</button><span class="score">🎲</span></div><h2 class="title">دومينو</h2><p class="sub">أنت ضد الكمبيوتر. خلّص حجارك الأول 🎯</p><div id="dm"></div>'}
 function dDraw(){var e=document.getElementById('dm');if(!e||!DM)return;var h='';
  h+='<div class="dinfo">حجار الكمبيوتر: <b>'+DM.cpu.length+'</b> · في السحب: <b>'+DM.bone.length+'</b></div>';
  h+='<div class="dchain" id="dchain">'+DM.chain.map(function(t){return dt(t,'h')}).join('')+'</div>';
