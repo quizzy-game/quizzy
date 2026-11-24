@@ -161,4 +161,14 @@ app.addEventListener('click',function(e){
 });
 render();
 if("serviceWorker" in navigator&&location.protocol.indexOf("http")===0){window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){})})}
+(function(){var sa=window.matchMedia&&matchMedia("(display-mode: standalone)").matches||navigator.standalone;if(sa)return;
+var ios=/iphone|ipad|ipod/i.test(navigator.userAgent),dp=null,bar=null;
+var css=document.createElement("style");css.textContent="#inst{position:fixed;left:10px;right:10px;bottom:10px;z-index:99;background:#1e6fff;color:#fff;border-radius:18px;padding:14px 16px;box-shadow:0 8px 24px rgba(0,0,0,.3);display:flex;align-items:center;gap:12px;direction:rtl;font-size:16px}#inst b{display:block;font-size:18px}#inst .t{flex:1}#inst button{border:0;border-radius:999px;min-height:44px;padding:0 18px;font:inherit;font-weight:700;background:#ffa433;color:#0b1f3a}#inst .x{background:transparent;color:#fff;padding:0 6px;font-size:22px;min-height:44px}";document.head.appendChild(css);
+function show(txt,btn){if(bar)bar.remove();bar=document.createElement("div");bar.id="inst";bar.innerHTML='<div class="t"><b>ثبّت Quizzy كتطبيق</b>'+txt+'</div>'+(btn?'<button type="button" id="instgo">ثبت التطبيق</button>':'')+'<button type="button" class="x" id="instx" aria-label="إغلاق">✕</button>';document.body.appendChild(bar);document.body.style.paddingBottom="110px";document.getElementById("instx").onclick=function(){bar.remove();try{sessionStorage.setItem("instx","1")}catch(e){}};var g=document.getElementById("instgo");if(g)g.onclick=function(){if(dp){dp.prompt();dp.userChoice.then(function(){dp=null;bar&&bar.remove()})}}}
+try{if(sessionStorage.getItem("instx"))return}catch(e){}
+window.addEventListener("beforeinstallprompt",function(e){e.preventDefault();dp=e;show("بدون متجر وبتشتغل من غير نت",true)});
+window.addEventListener("appinstalled",function(){bar&&bar.remove()});
+if(ios)setTimeout(function(){show("دوس على زر المشاركة ⬆️ ثم «إضافة إلى الشاشة الرئيسية»",false)},800);
+else setTimeout(function(){if(!dp&&!bar)show("من قائمة المتصفح ⋮ اختار «تثبيت التطبيق»",false)},3500)})();
+
 </script></body></html>
