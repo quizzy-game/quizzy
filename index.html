@@ -467,14 +467,14 @@ ts.forEach(function(t,i){var r=Math.floor(i/n),k=i%n,rev=r%2===1,col=rev?n-1-k:k
 t.className='dt h'+(rev?' rv':'');t.style.left=(sx+col*(L+g))+'px';t.style.top=(pad+r*(w+rowG))+'px'});
 var rows=Math.ceil(ts.length/n);c.style.height=Math.max(220,pad*2+rows*(w+rowG)-rowG)+'px'}
 </script><script>var GAMES=[],GMV=null,GMSTOP=null;
-function gmReg(g){GAMES.push(g)}
+function gmReg(g){if(g.id==='match'||g.id==='pool')return;GAMES.push(g)}
 function gmLoad(k,d){try{var v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}}
 function gmSave(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
 function gmShuf(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t}return a}
 function gmBar(t){return '<div class="bar"><button type="button" class="back" data-act="home">← رجوع</button><span class="gmtitle">'+t+'</span></div>'}
 (function(){
 var _home=home;
-home=function(){var h=_home();var b=GAMES.map(function(g){return '<button type="button" class="gmbtn '+g.cls+'" data-gm="'+g.id+'"><span class="ico">'+g.ico+'</span><span class="main"><strong>'+g.name+'</strong><small>'+g.sub+'</small></span><span class="go">يلا</span></button>'}).join('');return h.replace('<div class="section">اختار','<div class="gmlist">'+b+'</div><div class="ver">إصدار 28</div><div class="section">اختار')};
+home=function(){var h=_home();var b=GAMES.map(function(g){return '<button type="button" class="gmbtn '+g.cls+'" data-gm="'+g.id+'"><span class="ico">'+g.ico+'</span><span class="main"><strong>'+g.name+'</strong><small>'+g.sub+'</small></span><span class="go">يلا</span></button>'}).join('');return h.replace('<div class="section">اختار','<div class="gmlist">'+b+'</div><div class="ver">إصدار 29</div><div class="section">اختار')};
 var _r=render;
 render=function(){if(GMSTOP){GMSTOP();GMSTOP=null}if(view==='gm'&&GMV){app.innerHTML='';var g=GAMES.filter(function(x){return x.id===GMV})[0];if(g){g.draw();window.scrollTo(0,0);return}}_r()};
 document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-gm]');if(b){GMV=b.dataset.gm;view='gm';var g=GAMES.filter(function(x){return x.id===GMV})[0];if(g&&g.start)g.start();render()}},false);
