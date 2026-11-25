@@ -375,12 +375,27 @@ function dStart(){DMID++;var t=shuffle(dAll());DM={id:DMID,me:t.slice(0,7),cpu:t
 function dCheck(){if(DM.over)return;if(!DM.me.length){DM.over='me'}else if(!DM.cpu.length){DM.over='cpu'}else if(DM.pass>=2){var a=dSum(DM.me),b=dSum(DM.cpu);DM.over=a<b?'me':b<a?'cpu':'tie'}
  if(DM.over&&typeof sfx==='function'&&DM.over==='me'){sfx('win');vib([60,40,60,40,120])}}
 function dNext(){if(!DM||DM.over||DM.turn!=='cpu')return;var id=DM.id;setTimeout(function(){if(!DM||DM.id!==id||view!=='dom'||DM.over||DM.turn!=='cpu')return;dCpu();dDraw();dNext()},900)}
-function dCpu(){var pick=-1,k=-1;DM.cpu.forEach(function(t,i){if(dFits(t)&&t[0]+t[1]>k){k=t[0]+t[1];pick=i}});
+var DLEVEL='m';
+function dLvName(){return DLEVEL==='e'?'سهل':DLEVEL==='h'?'صعب':'متوسط'}
+function dPickCpu(){DM.cside=null;var c=[];DM.cpu.forEach(function(t,i){if(dFits(t))c.push(i)});if(!c.length)return -1;
+ function greedy(){var p=c[0],k=-1;c.forEach(function(i){var t=DM.cpu[i];if(t[0]+t[1]>k){k=t[0]+t[1];p=i}});return p}
+ if(DLEVEL==='e'){return Math.random()<.85?c[Math.floor(Math.random()*c.length)]:greedy()}
+ if(DLEVEL!=='h')return greedy();
+ var seen={},u=[0,0,0,0,0,0,0];DM.chain.concat(DM.cpu).forEach(function(t){seen[t[0]+'-'+t[1]]=1});
+ dAll().forEach(function(t){if(!seen[t[0]+'-'+t[1]]){u[t[0]]++;if(t[0]!==t[1])u[t[1]]++}});
+ var e=dEnds(),best=-1e9,bi=c[0],bs=null;
+ c.forEach(function(i){var t=DM.cpu[i];dSides(t).forEach(function(sd){var l=e[0],r=e[1];
+  if(sd==='L'){l=t[1]===e[0]?t[0]:t[1]}else{r=t[0]===e[1]?t[1]:t[0]}
+  var hold=[0,0,0,0,0,0,0];DM.cpu.forEach(function(x,j){if(j!==i){hold[x[0]]++;if(x[0]!==x[1])hold[x[1]]++}});
+  var sc=(t[0]+t[1])*1.2+(t[0]===t[1]?2:0)+3*(hold[l]+hold[r])-1.5*(u[l]+u[r])+(l===r?-2:0)+Math.random()*.3;
+  if(sc>best){best=sc;bi=i;bs=sd}})});
+ DM.cside=bs;return bi}
+function dCpu(){var pick=dPickCpu();
  while(pick<0&&DM.bone.length){var n=DM.bone.pop();DM.cpu.push(n);if(dFits(n))pick=DM.cpu.length-1}
- if(pick<0){DM.pass++;DM.msg='الكمبيوتر معاه مفيش وعدّى';DM.turn='me'}else{var t=DM.cpu.splice(pick,1)[0],s=dSides(t);dPlace(t,s[Math.floor(Math.random()*s.length)]);DM.pass=0;DM.msg='الكمبيوتر لعب';DM.turn='me'}
+ if(pick<0){DM.pass++;DM.msg='الكمبيوتر معاه مفيش وعدّى';DM.turn='me'}else{var t=DM.cpu.splice(pick,1)[0],s=dSides(t);dPlace(t,(DM.cside&&s.indexOf(DM.cside)>=0)?DM.cside:s[Math.floor(Math.random()*s.length)]);DM.cside=null;DM.pass=0;DM.msg='الكمبيوتر لعب';DM.turn='me'}
  dCheck();if(!DM.over&&!dCanMe()&&!DM.bone.length){DM.msg+=' · معاك مفيش وهتعدّي';}}
 function dCanMe(){return DM.me.some(dFits)}
-function domView(){return '<div class="bar"><button type="button" class="back" data-act="home">← رجوع</button><span class="score">🎲</span></div><h2 class="title">دومينو</h2><p class="sub">خلّص حجارك الأول 🎯</p><div id="dm"></div>'}
+function domView(){return '<div class="bar"><button type="button" class="back" data-act="home">← رجوع</button><span class="score">🎲</span></div><h2 class="title">دومينو</h2><p class="sub">خلّص حجارك الأول 🎯'+(DMODE==='cpu'?' · المستوى: '+dLvName():'')+'</p><div id="dm"></div>'}
 function dDraw(){var e=document.getElementById('dm');if(!e||!DM)return;var h='';
  h+='<div class="dinfo">حجار الكمبيوتر: <b>'+DM.cpu.length+'</b> · في السحب: <b>'+DM.bone.length+'</b></div>';
  h+='<div class="dchain" id="dchain">'+DM.chain.map(function(t){return dt(t,'h')}).join('')+'</div>';
@@ -399,13 +414,14 @@ app.addEventListener('click',function(e){var b=e.target.closest('[data-d]');if(!
  else if(d==='side'){if(DM.pick>=0)dPlay(DM.pick,b.dataset.s)}
  else if(d==='draw'){if(!DM.bone.length)return;DM.me.push(DM.bone.pop());DM.msg='';dDraw()}
  else if(d==='pass'){DM.pass++;DM.turn='cpu';DM.msg='عدّيت';dCheck();dDraw();dNext()}});
+app.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-lv]');if(b&&view==='dom')DLEVEL=b.dataset.lv},true);
 var _render3=render;render=function(){_render3();if(view==='dom'){if(DMODE==='cpu'){if(!DM)dStart();else{dDraw();dNext()}}else if(DMODE==='on')onDraw();else menuDraw()}};
 document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('button[data-act="dom"]');if(b){view='dom';DMODE=null;render()}},false);
 var DMODE=null,ROOM=null,S=null,ONP=-1,POLLING=false,wasMine=false,DERR='';
 var DER={NOT_YOUR_TURN:'مش دورك',BAD_MOVE:'الحركة دي مش مسموحة',NO_ROOM:'مفيش غرفة بالكود ده',BUSY:'السيرفر زحمة، جرب بعد شوية',NET:'مفيش إنترنت دلوقتي',BANNED:'تم منعك',BAD_NAME:'اكتب اسمك الأول (حروف بس)',PROFANITY:'الاسم ده ممنوع'};
 function derr(c){return DER[c]||ERR[c]||DER.NET}
 function menuDraw(){var e=document.getElementById('dm');if(!e)return;
- var h='<button type="button" class="primary" data-n="cpu">🤖 العب ضد الكمبيوتر</button>';
+ var h='<div class="section">🤖 العب ضد الكمبيوتر</div><div class="dpick"><button type="button" data-n="cpu" data-lv="e">سهل</button><button type="button" data-n="cpu" data-lv="m">متوسط</button><button type="button" data-n="cpu" data-lv="h">صعب</button></div>';
  if(!myName())h+='<div class="onl" style="margin-top:14px"><p class="sub">عشان تلعب أونلاين اكتب اسمك الأول</p>'+nameForm()+'</div>';
  else{h+='<p class="note">اسمك: <b>'+esc(myName())+'</b></p><button type="button" class="primary" data-n="j2">⚔️ 1 ضد 1 أونلاين</button><button type="button" class="primary" data-n="j4">🪑 طاولة 4 لاعبين أونلاين</button>'+
  '<div class="section">🔑 غرفة خاصة مع صحابك</div><div class="nform"><input id="dcode" inputmode="numeric" maxlength="4" placeholder="كود الغرفة (4 أرقام)"><button type="button" data-n="code">ادخل</button></div><div class="dpick"><button type="button" data-n="m2">اعمل غرفة لاتنين</button><button type="button" data-n="m4">اعمل غرفة لـ٤</button></div>'}
@@ -474,7 +490,7 @@ function gmShuf(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*
 function gmBar(t){return '<div class="bar"><button type="button" class="back" data-act="home">← رجوع</button><span class="gmtitle">'+t+'</span></div>'}
 (function(){
 var _home=home;
-home=function(){var h=_home();var b=GAMES.map(function(g){return '<button type="button" class="gmbtn '+g.cls+'" data-gm="'+g.id+'"><span class="ico">'+g.ico+'</span><span class="main"><strong>'+g.name+'</strong><small>'+g.sub+'</small></span><span class="go">يلا</span></button>'}).join('');return h.replace('<div class="section">اختار','<div class="gmlist">'+b+'</div><div class="ver">إصدار 31</div><div class="section">اختار')};
+home=function(){var h=_home();var b=GAMES.map(function(g){return '<button type="button" class="gmbtn '+g.cls+'" data-gm="'+g.id+'"><span class="ico">'+g.ico+'</span><span class="main"><strong>'+g.name+'</strong><small>'+g.sub+'</small></span><span class="go">يلا</span></button>'}).join('');return h.replace('<div class="section">اختار','<div class="gmlist">'+b+'</div><div class="ver">إصدار 32</div><div class="section">اختار')};
 var _r=render;
 render=function(){if(GMSTOP){GMSTOP();GMSTOP=null}if(view==='gm'&&GMV){app.innerHTML='';var g=GAMES.filter(function(x){return x.id===GMV})[0];if(g){g.draw();window.scrollTo(0,0);return}}_r()};
 document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-gm]');if(b){GMV=b.dataset.gm;view='gm';var g=GAMES.filter(function(x){return x.id===GMV})[0];if(g&&g.start)g.start();render()}},false);
@@ -606,7 +622,7 @@ if(view==='home')render();
 var st=document.createElement('style');st.textContent='.gm4{background:#ffe9ec;color:#7a1230;box-shadow:inset 0 0 0 1.5px #ef5b7b}.lsn{margin:14px 0;padding:12px;border-radius:18px;background:#fff;box-shadow:0 1px 6px rgba(0,0,0,.12)}.lsn h3{margin:0 0 8px;font-size:18px;text-align:right}.lsn video{width:100%;border-radius:12px;background:#000;display:block}.lsn .n{display:inline-block;background:#222;color:#fff;border-radius:99px;padding:2px 10px;font-size:14px;margin-left:8px}.lsnote{text-align:center;opacity:.75;font-size:14px;margin:6px 0 2px}';document.head.appendChild(st);
 var L=[['الحروف الإنجليزية A to Z'],['الأرقام من ١ لـ ٢٠'],['التحيات والتعريف بنفسك'],['أول الجمل'],['الألوان والأشكال'],['العيلة والناس'],['الأيام والشهور'],['الأرقام من ٢١ لـ ٤٠'],['أول ١٠ كلمات (بونص)']];
 var g={id:'lessons',cls:'gm4',ico:'🎬',name:'دروس إنجليزي',sub:'فيديوهات من الصفر بالعربي، مع مستر محمد محمود',start:function(){},
-draw:function(){app.innerHTML=gmBar('🎬 دروس إنجليزي من الصفر')+'<div class="lsnote">٩ فيديوهات، شوفهم بالترتيب</div>'+L.map(function(x,i){var k=i+1;return '<div class="lsn"><h3><span class="n">'+(k<=8?'الدرس '+k:'بونص')+'</span>'+x[0]+'</h3><video controls playsinline preload="none" poster="p'+k+'.jpg" src="v'+k+'.mp4"></video></div>'}).join('');window.scrollTo(0,0)}};
+draw:function(){app.innerHTML=gmBar('🎬 دروس إنجليزي من الصفر')+'<div class="lsnote">٩ فيديوهات، شوفهم بالترتيب</div>'+L.map(function(x,i){var k=i+1;return '<div class="lsn"><h3><span class="n">'+(k<=8?'الدرس '+k:'بونص')+'</span>'+x[0]+'</h3><video controls playsinline preload="none" poster="p'+k+'.jpg?v=32" src="v'+k+'.mp4?v=32"></video></div>'}).join('');window.scrollTo(0,0)}};
 GAMES.unshift(g);
 if(view==='home')render();
 })();</script>
