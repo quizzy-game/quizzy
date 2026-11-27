@@ -490,7 +490,7 @@ function gmShuf(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*
 function gmBar(t){return '<div class="bar"><button type="button" class="back" data-act="home">← رجوع</button><span class="gmtitle">'+t+'</span></div>'}
 (function(){
 var _home=home;
-home=function(){var h=_home();var b=GAMES.map(function(g){return '<button type="button" class="gmbtn '+g.cls+'" data-gm="'+g.id+'"><span class="ico">'+g.ico+'</span><span class="main"><strong>'+g.name+'</strong><small>'+g.sub+'</small></span><span class="go">يلا</span></button>'}).join('');return h.replace('<div class="section">اختار','<div class="gmlist">'+b+'</div><div class="ver">إصدار 32</div><div class="section">اختار')};
+home=function(){var h=_home();var b=GAMES.map(function(g){return '<button type="button" class="gmbtn '+g.cls+'" data-gm="'+g.id+'"><span class="ico">'+g.ico+'</span><span class="main"><strong>'+g.name+'</strong><small>'+g.sub+'</small></span><span class="go">يلا</span></button>'}).join('');return h.replace('<div class="section">اختار','<div class="gmlist">'+b+'</div><div class="ver">إصدار 33</div><div class="section">اختار')};
 var _r=render;
 render=function(){if(GMSTOP){GMSTOP();GMSTOP=null}if(view==='gm'&&GMV){app.innerHTML='';var g=GAMES.filter(function(x){return x.id===GMV})[0];if(g){g.draw();window.scrollTo(0,0);return}}_r()};
 document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-gm]');if(b){GMV=b.dataset.gm;view='gm';var g=GAMES.filter(function(x){return x.id===GMV})[0];if(g&&g.start)g.start();render()}},false);
@@ -624,6 +624,22 @@ var L=[['الحروف الإنجليزية A to Z'],['الأرقام من ١ ل�
 var g={id:'lessons',cls:'gm4',ico:'🎬',name:'دروس إنجليزي',sub:'فيديوهات من الصفر بالعربي، مع مستر محمد محمود',start:function(){},
 draw:function(){app.innerHTML=gmBar('🎬 دروس إنجليزي من الصفر')+'<div class="lsnote">٩ فيديوهات، شوفهم بالترتيب</div>'+L.map(function(x,i){var k=i+1;return '<div class="lsn"><h3><span class="n">'+(k<=8?'الدرس '+k:'بونص')+'</span>'+x[0]+'</h3><video controls playsinline preload="none" poster="p'+k+'.jpg?v=32" src="v'+k+'.mp4?v=32"></video></div>'}).join('');window.scrollTo(0,0)}};
 GAMES.unshift(g);
+if(view==='home')render();
+})();</script>
+<script>(function(){
+var st=document.createElement('style');st.textContent='.gm5{background:#fff3d6;color:#6b3d00;box-shadow:inset 0 0 0 1.5px #f2a516}.ep{margin:14px 0;padding:12px;border-radius:18px;background:#fff;box-shadow:0 1px 6px rgba(0,0,0,.12)}.ep h3{margin:0 0 8px;font-size:18px;text-align:right}.ep .n{display:inline-block;background:#222;color:#fff;border-radius:99px;padding:2px 10px;font-size:14px;margin-left:8px}.epv{position:relative;width:100%;aspect-ratio:16/9;border-radius:12px;overflow:hidden;background:#000}.epv img,.epv iframe{position:absolute;inset:0;width:100%;height:100%;border:0;object-fit:cover}.epv button{position:absolute;inset:0;margin:auto;width:64px;height:64px;border-radius:50%;border:0;background:rgba(255,255,255,.92);font-size:26px}.ep.soon{opacity:.6;text-align:center}.epch{display:block;margin:14px 0;text-align:center;padding:14px;border-radius:16px;background:#ff2d2d;color:#fff;font-weight:bold;text-decoration:none}';document.head.appendChild(st);
+var EP=null;
+function load(){fetch('episodes.json?x='+Date.now(),{cache:'no-store'}).then(function(r){return r.json()}).then(function(j){EP=j;if(view==='gm'&&GMV==='cartoons')render()}).catch(function(){EP={channel:'https://www.youtube.com/@QuizzyEnglish1-2',episodes:[]};if(view==='gm'&&GMV==='cartoons')render()})}
+var g={id:'cartoons',cls:'gm5',ico:'🐻',name:'كرتون بوبو ولولو',sub:'حلقات كرتون بتعلمك إنجليزي',start:function(){load()},
+draw:function(){var h=gmBar('🐻 كرتون بوبو ولولو');if(!EP){app.innerHTML=h+'<p class="lsnote">بنحمل الحلقات...</p>';return}
+var live=EP.episodes.filter(function(e){return e.id}),soon=EP.episodes.filter(function(e){return !e.id});
+h+='<div class="lsnote">'+live.length+' حلقة متاحة'+(soon.length?'، والباقي قريب':'')+'</div>';
+h+=live.map(function(e){return '<div class="ep"><h3><span class="n">حلقة '+e.n+'</span>'+esc(e.title)+'</h3><div class="epv" data-yt="'+esc(e.id)+'"><img loading="lazy" alt="" src="https://i.ytimg.com/vi/'+esc(e.id)+'/hqdefault.jpg"><button type="button" aria-label="شغّل">▶</button></div></div>'}).join('');
+h+=soon.map(function(e){return '<div class="ep soon"><h3><span class="n">حلقة '+e.n+'</span>'+esc(e.title)+'</h3>⏳ قريبًا</div>'}).join('');
+h+='<a class="epch" href="'+esc(EP.channel)+'" target="_blank" rel="noopener">اشترك في القناة على يوتيوب ▶</a>';
+app.innerHTML=h;window.scrollTo(0,0)}};
+GAMES.unshift(g);
+document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('.epv[data-yt] button');if(!b)return;var v=b.parentNode,id=v.dataset.yt;v.innerHTML='<iframe src="https://www.youtube-nocookie.com/embed/'+id+'?autoplay=1&rel=0&playsinline=1" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>'},false);
 if(view==='home')render();
 })();</script>
 </body></html>
