@@ -1,0 +1,36 @@
+name: publish-index
+on: workflow_dispatch
+permissions:
+  contents: write
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: patch index.html
+        run: |
+          python3 - <<'PY'
+          import base64, hashlib, sys
+          p = 'index.html'
+          s = open(p, encoding='utf-8').read()
+          pairs = [
+              (base64.b64decode('PGRpdiBjbGFzcz0idmVyIj7Ypdi12K/Yp9ixIDM0PC9kaXY+').decode(), base64.b64decode('PGRpdiBjbGFzcz0idmVyIj7Ypdi12K/Yp9ixIDM1PC9kaXY+PGRpdiBjbGFzcz0idmlzIiBpZD0idmlzIj48L2Rpdj4=').decode()),
+              (base64.b64decode('PC9ib2R5PjwvaHRtbD4=').decode(), base64.b64decode('PHNjcmlwdD4oZnVuY3Rpb24oKXsKdmFyIE5TPSdxdWl6enktZ2FtZScsVlo9bnVsbCxVTj1udWxsOwp2YXIgc3Q9ZG9jdW1lbnQuY3JlYXRlRWxlbWVudCgnc3R5bGUnKTtzdC50ZXh0Q29udGVudD0nLnZpc3t0ZXh0LWFsaWduOmNlbnRlcjtmb250LXNpemU6MTNweDtvcGFjaXR5Oi42O21hcmdpbjotNHB4IDAgMTJweDtmb250LXZhcmlhbnQtbnVtZXJpYzp0YWJ1bGFyLW51bXN9Jztkb2N1bWVudC5oZWFkLmFwcGVuZENoaWxkKHN0KTsKZnVuY3Rpb24gYXBpKGtpbmQsayl7cmV0dXJuIGZldGNoKCdodHRwczovL2FiYWN1cy5qYXNvbmNhbWVyb24uZGV2Lycra2luZCsnLycrTlMrJy8nK2sse2NhY2hlOiduby1zdG9yZSd9KS50aGVuKGZ1bmN0aW9uKHIpe3JldHVybiByLmpzb24oKX0pLnRoZW4oZnVuY3Rpb24oail7cmV0dXJuIGomJnR5cGVvZiBqLnZhbHVlPT09J251bWJlcic/ai52YWx1ZTpudWxsfSkuY2F0Y2goZnVuY3Rpb24oKXtyZXR1cm4gbnVsbH0pfQpmdW5jdGlvbiBmbXQobil7cmV0dXJuIFN0cmluZyhuKS5yZXBsYWNlKC9cQig/PShcZHszfSkrKD8hXGQpKS9nLCcsJyl9CmZ1bmN0aW9uIHBhaW50KCl7dmFyIGU9ZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ3ZpcycpO2lmKCFlKXJldHVybjt2YXIgcGFydHM9W107aWYoVU4hPW51bGwpcGFydHMucHVzaChmbXQoVU4pKycg2LLYp9im2LEnKTtpZihWWiE9bnVsbClwYXJ0cy5wdXNoKGZtdChWWikrJyDYstmK2KfYsdipJyk7ZS50ZXh0Q29udGVudD1wYXJ0cy5sZW5ndGg/J/CfkaUgJytwYXJ0cy5qb2luKCcgwrcgJyk6Jyd9CmFwaSgnaGl0JywndmlzaXRzJykudGhlbihmdW5jdGlvbih2KXtpZih2IT1udWxsKXtWWj12O3BhaW50KCl9ZWxzZXthcGkoJ2dldCcsJ3Zpc2l0cycpLnRoZW4oZnVuY3Rpb24oZyl7Vlo9ZztwYWludCgpfSl9fSk7CnZhciBmaXJzdD1mYWxzZTt0cnl7Zmlyc3Q9IWxvY2FsU3RvcmFnZS5nZXRJdGVtKCdxdWl6enkuc2VlbicpfWNhdGNoKGUpe2ZpcnN0PWZhbHNlfQppZihmaXJzdCl7YXBpKCdoaXQnLCd1bmlxdWVzJykudGhlbihmdW5jdGlvbih2KXtVTj12O3RyeXtsb2NhbFN0b3JhZ2Uuc2V0SXRlbSgncXVpenp5LnNlZW4nLCcxJyl9Y2F0Y2goZSl7fXBhaW50KCl9KX0KZWxzZXthcGkoJ2dldCcsJ3VuaXF1ZXMnKS50aGVuKGZ1bmN0aW9uKHYpe1VOPXY7cGFpbnQoKX0pfQp2YXIgX3J2PXJlbmRlcjtyZW5kZXI9ZnVuY3Rpb24oKXtfcnYuYXBwbHkodGhpcyxhcmd1bWVudHMpO3BhaW50KCl9OwpzZXRUaW1lb3V0KHBhaW50LDE1MDApOwp9KSgpOzwvc2NyaXB0Pgo8L2JvZHk+PC9odG1sPg==').decode()),
+          ]
+          for a, b in pairs:
+              if a not in s:
+                  print('MISSING', a[:40]); sys.exit(1)
+              s = s.replace(a, b, 1)
+          h = hashlib.sha256(s.encode()).hexdigest()
+          if h != '0cfd45bcbae2db6f5f38a720108d7dfe922ccda21e6f9e3b05a20eb36a01369c':
+              print('SHA MISMATCH', h); sys.exit(1)
+          open(p, 'w', encoding='utf-8').write(s)
+          print('patched ok', h)
+          PY
+      - name: commit and push
+        run: |
+          git config user.name 'quizzy-game'
+          git config user.email 'quizzy-game@users.noreply.github.com'
+          git add index.html
+          git commit -m 'v35: visit counter'
+          git push
