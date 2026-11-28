@@ -490,7 +490,7 @@ function gmShuf(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*
 function gmBar(t){return '<div class="bar"><button type="button" class="back" data-act="home">← رجوع</button><span class="gmtitle">'+t+'</span></div>'}
 (function(){
 var _home=home;
-home=function(){var h=_home();var b=GAMES.map(function(g){return '<button type="button" class="gmbtn '+g.cls+'" data-gm="'+g.id+'"><span class="ico">'+g.ico+'</span><span class="main"><strong>'+g.name+'</strong><small>'+g.sub+'</small></span><span class="go">يلا</span></button>'}).join('');return h.replace('<div class="section">اختار','<div class="gmlist">'+b+'</div><div class="ver">إصدار 34</div><div class="section">اختار')};
+home=function(){var h=_home();var b=GAMES.map(function(g){return '<button type="button" class="gmbtn '+g.cls+'" data-gm="'+g.id+'"><span class="ico">'+g.ico+'</span><span class="main"><strong>'+g.name+'</strong><small>'+g.sub+'</small></span><span class="go">يلا</span></button>'}).join('');return h.replace('<div class="section">اختار','<div class="gmlist">'+b+'</div><div class="ver">إصدار 35</div><div class="vis" id="vis"></div><div class="section">اختار')};
 var _r=render;
 render=function(){if(GMSTOP){GMSTOP();GMSTOP=null}if(view==='gm'&&GMV){app.innerHTML='';var g=GAMES.filter(function(x){return x.id===GMV})[0];if(g){g.draw();window.scrollTo(0,0);return}}_r()};
 document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-gm]');if(b){GMV=b.dataset.gm;view='gm';var g=GAMES.filter(function(x){return x.id===GMV})[0];if(g&&g.start)g.start();render()}},false);
@@ -642,5 +642,18 @@ app.innerHTML=h;window.scrollTo(0,0)}};
 GAMES.unshift(g);
 document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('.epv[data-yt] button');if(!b)return;var v=b.parentNode,id=v.dataset.yt;v.innerHTML='<iframe src="https://www.youtube-nocookie.com/embed/'+id+'?autoplay=1&rel=0&playsinline=1" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>'},false);
 if(view==='home')render();
+})();</script>
+<script>(function(){
+var NS='quizzy-game',VZ=null,UN=null;
+var st=document.createElement('style');st.textContent='.vis{text-align:center;font-size:13px;opacity:.6;margin:-4px 0 12px;font-variant-numeric:tabular-nums}';document.head.appendChild(st);
+function api(kind,k){return fetch('https://abacus.jasoncameron.dev/'+kind+'/'+NS+'/'+k,{cache:'no-store'}).then(function(r){return r.json()}).then(function(j){return j&&typeof j.value==='number'?j.value:null}).catch(function(){return null})}
+function fmt(n){return String(n).replace(/\B(?=(\d{3})+(?!\d))/g,',')}
+function paint(){var e=document.getElementById('vis');if(!e)return;var parts=[];if(UN!=null)parts.push(fmt(UN)+' زائر');if(VZ!=null)parts.push(fmt(VZ)+' زيارة');e.textContent=parts.length?'👥 '+parts.join(' · '):''}
+api('hit','visits').then(function(v){if(v!=null){VZ=v;paint()}else{api('get','visits').then(function(g){VZ=g;paint()})}});
+var first=false;try{first=!localStorage.getItem('quizzy.seen')}catch(e){first=false}
+if(first){api('hit','uniques').then(function(v){UN=v;try{localStorage.setItem('quizzy.seen','1')}catch(e){}paint()})}
+else{api('get','uniques').then(function(v){UN=v;paint()})}
+var _rv=render;render=function(){_rv.apply(this,arguments);paint()};
+setTimeout(paint,1500);
 })();</script>
 </body></html>
